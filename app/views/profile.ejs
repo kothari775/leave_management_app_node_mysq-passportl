@@ -1,0 +1,187 @@
+<!-- views/profile.ejs -->
+<!doctype html>
+<html>
+<head>
+	<title>Node Authentication</title>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+	<style>
+		body 		{ word-wrap:break-word; }
+	</style>
+	<link href="/css/datepicker.css" rel="stylesheet" type="text/css">
+	<!--<link href="/css/bootstrap.css" rel="stylesheet" type="text/css"> -->
+    
+</head>
+<body>
+<div class="container">
+<h3><span class="fa fa-user pull-left"></span> Hey <%= user.Name %> !</h3>
+<a href="/logout" class="btn btn-default btn-sm pull-right">Logout</a>
+	<div class="page-header text-center">
+
+		
+		<h1><span class="fa fa-anchor"></span> Employee Leave Application Form</h1>		
+	</div>
+
+	<div class="row">
+
+		<!-- LOCAL INFORMATION
+		<div class="col-sm-6">
+			<div class="well">
+				
+
+					<p>
+						<strong>id</strong>: <%= user.id %><br>
+						<strong>username</strong>: <%= user.username %><br>
+						
+						 
+					</p>
+
+			</div>
+		</div> -->
+<div class="container">
+    <div class="row">
+        <form role="form" id="leave_form" method="post" action="" >
+            <div class="col-lg-6">
+                <div class="well well-sm"><strong><span class="glyphicon glyphicon-asterisk"></span>Required Field</strong></div>
+                <div class="form-group">
+                    <label for="InputName">Employee Name</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="EmpName" id="EmpName" placeholder="Employee Name" required>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-asterisk"></span></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="InputEmail">Employee Email</label>
+                    <div class="input-group">
+                        <input type="email" class="form-control" id="EmpEmail" name="EmpEmail" placeholder="Employee Email" required>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-asterisk"></span></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                	<label for="InputEmail">Leave Dates</label>
+	                <div class="input-daterange" id="datepicker" >
+	                    <input type="text" class="input-small" id="start_date" name="start_date" placeholder="Start date" required />
+	                    <span class="add-on" style="vertical-align: top;height:20px">to</span>
+	                    <input type="text" class="input-small" id="end_date" name="end_date" placeholder="End date" required />
+	                </div>
+                </div>
+                
+		        
+                <div class="form-group">
+                    <label for="InputMessage">Enter Message</label>
+                    <div class="input-group">
+                        <textarea name="LeaveMessage" id="LeaveMessage" class="form-control" rows="5" required></textarea>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-asterisk"></span></span>
+                    </div>
+                </div>
+                <input type="text" name="no_days" id="no_days" value="" class="input-small" />
+                <input style="display:none" type="button" name="tmp" id="tmp" value="Date Calculations" class="btn btn-info pull-right"/>
+                <input type="submit" name="submit" id="submit" value="Submit" class="btn btn-info pull-right">
+            </div>
+        </form>
+        <div class="col-lg-5 col-md-push-1">
+            <div class="col-md-12">
+                <div class="alert alert-success">
+                    <strong><span class="glyphicon glyphicon-ok"></span> Success! Message sent.</strong>
+                </div>
+                <div class="alert alert-danger">
+                    <span class="glyphicon glyphicon-remove"></span><strong> Error! Please check all page inputs.</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+	</div>
+	
+</div>
+		<!-- Load jQuery and bootstrap datepicker scripts -->
+        <script src="/js/jquery-1.9.1.min.js"></script>
+        <script src="/js/bootstrap-datepicker.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/dojo/1.10.3/dojo/dojo.js"></script>
+        <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script> 
+		<script>dojoConfig = {async: true, parseOnLoad: false}</script>
+	
+	
+        <script type="text/javascript">
+            // When the document is ready
+            $(function() {
+
+				var today = new Date();
+				var dd = today.getDate();
+				var mm = today.getMonth()+1; //January is 0!
+
+				var yyyy = today.getFullYear();
+				if(dd<10){
+				dd='0'+dd
+				} 
+				if(mm<10){
+				mm='0'+mm
+				} 
+				var today = dd+'/'+mm+'/'+yyyy;
+
+                $('.input-daterange').datepicker({
+                    todayBtn: "linked",
+                    format: 'dd/mm/yyyy',
+                    startDate : today
+                });
+
+            $('#tmp').click(function(){
+				
+				var start_date = $('#start_date').val().split("/");
+				console.log("start_date : " + start_date);	
+		
+				var end_date = $('#end_date').val().split("/");				
+				console.log("end_date : " + end_date);
+		
+				require(["dojo/date", "dojo/dom", "dojo/domReady!"],
+					function(date, dom){
+					var date1 = new Date(start_date[2], start_date[1], start_date[0]);
+					var date2 = new Date(end_date[2], end_date[1], end_date[0]);
+					var remaining_weekdays = date.difference(date1, date2, "weekday");
+					console.log("remaining_weekdays : " + remaining_weekdays);					
+					$('#no_days').val(remaining_weekdays);
+				});
+        
+            });
+
+
+			$("form#leave_form").validate({
+			    
+			        // Specify the validation rules
+			        rules: {
+			            EmpName: "required",
+			            EmpEmail: {
+			                required: true,
+			                email: true
+			            },
+			            start_date : "required",
+			            end_date : "required",			          
+			            LeaveMessage: "required"
+			        },
+			        
+			        // Specify the validation error messages
+			        messages: {
+			            EmpName: "Please enter employee name",
+			            EmpEmail: {
+				            required: "Please enter employee email",
+				            email: "Please enter a valid email address",
+			            },
+			            start_date : "Please select start date",
+			            end_date : "Please select end date",
+			            LeaveMessage: "Please enter leave message"
+			        },
+			        
+			        submitHandler: function(form) {
+			        	$('#tmp').click();
+			        	if($('#no_days').val() != ""){
+			        		form.submit();
+			        		return true;
+			        	} 
+			            
+			        }
+			    });
+            
+            });
+        </script>
+</body>
+</html>
